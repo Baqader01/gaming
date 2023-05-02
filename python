@@ -1,0 +1,91 @@
+import pygame
+import random
+
+# Define colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+
+# Set screen dimensions
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 400
+
+# Set player dimensions
+PLAYER_WIDTH = 50
+PLAYER_HEIGHT = 50
+
+# Initialize Pygame
+pygame.init()
+
+# Set up the screen
+screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
+
+# Set the window title
+pygame.display.set_caption("Flappy Bird")
+
+# Set up the player
+player = pygame.Rect(50, SCREEN_HEIGHT // 2, PLAYER_WIDTH, PLAYER_HEIGHT)
+
+# Set up the pipes
+PIPE_WIDTH = 50
+PIPE_HEIGHT = 300
+PIPE_GAP = 150
+pipe1 = pygame.Rect(SCREEN_WIDTH, 0, PIPE_WIDTH, random.randint(50, SCREEN_HEIGHT - PIPE_GAP - 50))
+pipe2 = pygame.Rect(SCREEN_WIDTH, pipe1.bottom + PIPE_GAP, PIPE_WIDTH, SCREEN_HEIGHT - pipe1.bottom - PIPE_GAP)
+
+# Set up the clock
+clock = pygame.time.Clock()
+
+# Set up the score
+score = 0
+font = pygame.font.Font(None, 36)
+
+# Main game loop
+running = True
+while running:
+
+    # Event loop
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                player.top -= 50
+
+    # Update the player position
+    player.top += 3
+
+    # Move the pipes
+    pipe1.left -= 3
+    pipe2.left -= 3
+
+    # Check for collision with pipes
+    if player.colliderect(pipe1) or player.colliderect(pipe2):
+        running = False
+
+    # Check if pipe has gone off screen and reset it
+    if pipe1.right < 0:
+        pipe1.left = SCREEN_WIDTH
+        pipe1.height = random.randint(50, SCREEN_HEIGHT - PIPE_GAP - 50)
+        pipe2.top = pipe1.bottom + PIPE_GAP
+        score += 1
+
+    # Draw the screen
+    screen.fill(WHITE)
+    pygame.draw.rect(screen, GREEN, player)
+    pygame.draw.rect(screen, BLUE, pipe1)
+    pygame.draw.rect(screen, BLUE, pipe2)
+
+    # Draw the score
+    score_text = font.render("Score: " + str(score), True, BLACK)
+    screen.blit(score_text, [10, 10])
+
+    # Update the screen
+    pygame.display.flip()
+
+    # Set the frame rate
+    clock.tick(60)
+
+# Quit Pygame
+pygame.quit()
